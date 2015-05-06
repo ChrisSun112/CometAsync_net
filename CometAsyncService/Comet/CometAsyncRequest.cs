@@ -13,16 +13,28 @@ namespace CometAsyncService.Comet
     {
 
         private RequestInfo requestInfo;
-        private CometAsyncResult result;
+        private CometAsyncResult responseCometResult;
 
         public CometAsyncRequest(CometAsyncResult result)
         {
-            this.result = result;
+            this.responseCometResult = result;
         }
 
         public void Execute()
         {
             requestInfo = GetRequestData();
+            if (string.IsNullOrEmpty(requestInfo.FormUserID))
+            {
+                responseCometResult.ResponseObject = "系统提示:缺少FromUserID";
+                responseCometResult.SetCompleted();
+                return;
+            }
+            else if (string.IsNullOrEmpty(requestInfo.Action)) 
+            {
+                responseCometResult.ResponseObject = "系统提示:缺少Action";
+                responseCometResult.SetCompleted();
+                return;
+            }
             switch (requestInfo.Action)
             {
                 case "subscribe": //订阅
@@ -31,131 +43,104 @@ namespace CometAsyncService.Comet
                 case "unsubscribe": //取消订阅
                     break;
                 case "send":  //单发消息
+                    SendMessage();
                     break;
                 case "broadcase": //广播消息
                     break;
                 case "reconnect"://重连接，维持http长连接
                     break;
                 default:
-                    throw new Exception("制定action不存在");
+                    throw new Exception("指定action不存在");
                    
             }
         }
 
 
-        public void SendMessage(CometAsyncResult result)
+        public void SendMessage()
         {
-            if (!result.HttpContext.Request.Params.AllKeys.Contains("toUserID") || !result.HttpContext.Request.Params.AllKeys.Contains("message")) //缺失id或message，返回请求者
-            {
-                cometResult = result;
-                cometResult.ResponseObject = "系统提示:缺少toUserID或message";
 
+            TextMessage textMessage = requestInfo.Data as TextMessage;
+
+            if (CometRequestPool.IsExistKey(requestInfo.FormUserID))
+            {
+                CometRequestPool.Modify(requestInfo.FormUserID, responseCometResult);
             }
             else
             {
-                string id = result.HttpContext.Request["toUserID"].Trim();
-                string message = result.HttpContext.Request["message"];
-                string userID = result.HttpContext.Request["userID"].Trim();
+                responseCometResult.ResponseObject = "系统提示:您没有订阅";
+                responseCometResult.SetCompleted();
+                return;
 
-                if (CometRequestList.Keys.Contains(userID))
-                {
-                    CometRequestList[userID] = result;
-                }
-
-                if (CometRequestList.Keys.Contains(id))
-                {
-                    cometResult = CometRequestList[id];
-                    cometResult.ResponseObject = message;
-
-                }
-                else if (id == "all") //广播消息
-                {
-                    foreach (var d in CometRequestList)
-                    {
-                        d.Value.ResponseObject = message;
-                        d.Value.SetCompleted();
-                    }
-
-                    return;
-                }
-                else
-                {
-                    cometResult = result;
-                    cometResult.ResponseObject = "系统提示:指定的toUserID：" + id + "没有订阅！";
-                }
             }
 
-            cometResult.SetCompleted(); ;
+            CometAsyncResult result = null;
+            if (CometRequestPool.IsExistKey(textMessage.ToUserID))
+            {
+                result = CometRequestPool.Get(textMessage.ToUserID);
+                result.ResponseObject = textMessage.Message;
+                result.SetCompleted();
+            }
+            else
+            {
+                responseCometResult.ResponseObject = "系统提示:指定的UserID不存在";
+                responseCometResult.SetCompleted();
+            }
+           
+        }
+
+        /// <summary>
+        /// 订阅
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public void Subscribe()
+        {
+
+            if (!CometRequestPool.IsExistKey(requestInfo.FormUserID))
+            {
+                CometRequestPool.Add(requestInfo.FormUserID, responseCometResult);
+            }
+            else
+            {
+                CometRequestPool.Modify(requestInfo.FormUserID, responseCometResult);
+            }
+
+            responseCometResult.ResponseObject = "系统提示：订阅成功！";
+
+            responseCometResult.SetCompleted();
+            
+        }
+
+        /// <summary>
+        /// 取消订阅
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public void Unsubscribe()
+        {
+            if (CometRequestPool.IsExistKey(requestInfo.FormUserID))
+            {
+                CometRequestPool.Remove(requestInfo.FormUserID);           
+            }
+            responseCometResult.ResponseObject = "系统提示：订阅成功！";
+            responseCometResult.SetCompleted();
         }
 
 
-        public CometAsyncResult Subscribe(CometAsyncResult result)
+        public void Reconnect()
         {
-            if (!result.HttpContext.Request.Params.AllKeys.Contains("userID"))
+
+
+            if (CometRequestPool.IsExistKey(requestInfo.FormUserID))
             {
-                result.ResponseObject = "系统提示:缺少userID!";
+                CometRequestPool.Modify(requestInfo.FormUserID, responseCometResult);
             }
             else
             {
-                string userID = result.HttpContext.Request["userID"].Trim();
-                if (!CometRequestList.Keys.Contains(userID))
-                {
-                    CometRequestList.Add(userID, result);
-                }
-                else
-                {
-                    CometRequestList[userID] = result;
-                }
-                result.ResponseObject = "系统提示：订阅成功！";
+                responseCometResult.ResponseObject = "系统提示：用户" + requestInfo.FormUserID + "没有订阅";
+                responseCometResult.SetCompleted();
             }
-
-            cometResult = result;
-
-            return cometResult;
-        }
-
-        public CometAsyncResult Unsubscribe(CometAsyncResult result)
-        {
-            if (!result.HttpContext.Request.Params.AllKeys.Contains("id"))
-            {
-                result.ResponseObject = "系统提示:缺少ID!";
-            }
-            else
-            {
-                string id = result.HttpContext.Request["id"].Trim();
-                if (CometRequestList.Keys.Contains("id"))
-                {
-                    CometRequestList.Remove(id);
-                }
-
-                result.ResponseObject = "系统提示：取消订阅成功！";
-            }
-
-            return cometResult;
-        }
-
-
-        internal void Flash(CometAsyncResult result)
-        {
-            if (!result.HttpContext.Request.Params.AllKeys.Contains("userID"))
-            {
-                result.ResponseObject = "系统提示:缺少userID!";
-            }
-            else
-            {
-                string userID = result.HttpContext.Request["userID"].Trim();
-                if (!CometRequestList.Keys.Contains(userID))
-                {
-                    CometRequestList.Add(userID, result);
-                }
-                else
-                {
-                    CometRequestList[userID] = result;
-                }
-
-            }
-
-
+            
         }
         /// <summary>
         /// 读取请求的数据
@@ -168,7 +153,7 @@ namespace CometAsyncService.Comet
             try
             {
                 DataContractJsonSerializer serializer = new DataContractJsonSerializer(RequestInfo.GetType());
-                info = serializer.ReadObject(result.HttpContext.Request.InputStream) as RequestInfo;
+                info = serializer.ReadObject(responseCometResult.HttpContext.Request.InputStream) as RequestInfo;
             }
             catch (Exception ex)
             {

@@ -15,8 +15,6 @@ namespace CometAsyncService
         
         public string FormUserID { get; set; }
 
-        public string ToUserID { get; set; }
-
         public Object Data { get; set; }
     }
 }
