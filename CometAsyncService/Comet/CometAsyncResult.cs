@@ -65,46 +65,7 @@ namespace CometAsyncService
                 callback(this);
         }
 
-        internal void Execute()
-        {
-            if (!context.Request.Params.AllKeys.Contains("action"))
-            {
-                this.responseObject = "系统提示:缺少action";
-                SetCompleted();
-                return;
-            }
-            
-            string action = context.Request["action"].Trim();
-
-            CometRequestPool pool = new CometRequestPool();
-
-            CometAsyncResult result = null;
-
-            switch (action)
-            {
-                case "send":
-                    pool.SendMessage(this);
-                   
-                    break;
-                case "subscribe":
-                    result = pool.Subscribe(this);
-                    result.SetCompleted();
-                  
-                    break;
-                case "loop":
-                    pool.Flash(this);
-                    break;
-                default:
-                    result = this;
-                    result.responseObject = "系统提示:action无法识别！";
-                    result.SetCompleted();
-                    break;
-
-            }
-
-            //result.SetCompleted();
-            
-        }
+       
     }
 
 

@@ -52,5 +52,10 @@ namespace CometAsyncService
         {
             cometRequestList[key] = result;
         }
+
+        public static ICollection<CometAsyncResult> GetCometAsyncResultList()
+        {
+            return cometRequestList.Values;
+        }
     }
 }

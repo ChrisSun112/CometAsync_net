@@ -13,7 +13,8 @@ namespace CometAsyncService
         {
             CometAsyncResult result = new CometAsyncResult(context, cb, extraData);
 
-            result.Execute();
+            CometAsyncRequest req = new CometAsyncRequest(result);
+            req.Execute();
 
             return result;
         }
