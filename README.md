@@ -11,3 +11,7 @@ C#实现基于http长连接“服务器推”-Comet技术<br/>
 
 测试截图
 ![image](https://raw.githubusercontent.com/xuhang2015/image_repos/master/%E6%8D%95%E8%8E%B7.PNG)
+Cient是一个模拟即时通讯的一个简单控制台程序，使用方法如下：</br>
+1 按"1"订阅；<br/>
+2 输入你的名字，如“a1”;<br/>
+3 与已订阅用户聊天，如有位订阅用户“a2”，你可输入：@a2|hello a1。
