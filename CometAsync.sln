@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometAsyncService", "CometAsyncService\CometAsyncService.csproj", "{E969AA23-2468-4644-B1C8-3EA9EAFC6D7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometAsyncClient", "CometAsyncClient\CometAsyncClient.csproj", "{F80C9D97-F4D2-42F5-86D5-8370E5942608}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{E969AA23-2468-4644-B1C8-3EA9EAFC6D7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E969AA23-2468-4644-B1C8-3EA9EAFC6D7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E969AA23-2468-4644-B1C8-3EA9EAFC6D7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F80C9D97-F4D2-42F5-86D5-8370E5942608}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F80C9D97-F4D2-42F5-86D5-8370E5942608}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F80C9D97-F4D2-42F5-86D5-8370E5942608}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F80C9D97-F4D2-42F5-86D5-8370E5942608}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
