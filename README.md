@@ -7,5 +7,7 @@ C#实现基于http长连接“服务器推”-Comet技术<br/>
 服务端实现，主要包含Comet实现机制<br/>
 
 <h4>CometAsyncClient</h4>
-客户端实现，测试程序
+客户端实现，测试程序<br/>
 
+测试截图
+![image](https://raw.githubusercontent.com/xuhang2015/image_repos/master/%E6%8D%95%E8%8E%B7.PNG)
